@@ -2,6 +2,14 @@
 
 Contains commands useful for contributing to core issues.
 
+# Requirements
+
+1. Unix environment
+1. [git](https://git-scm.com/downloads)
+1. [composer](https://getcomposer.org/)
+1. [interdiff](http://freshmeat.sourceforge.net/projects/patchutils)
+1. A Drupal codebase checked out with Git
+
 # Installation
 
 ```bash
@@ -10,6 +18,8 @@ cd drupal
 composer install
 git clone git@github.com:mortenson/issue.git
 ```
+
+Commands can then be run using `php issue/command`.
 
 # Commands
 
@@ -51,3 +61,8 @@ Created 2962110-44.patch
 
 Created interdiff-2962110-42-44.txt
 ```
+
+# Alternatives
+
+If you prefer tracking changes with Git instead of using patch files, you
+should check out [dorgflow](https://github.com/joachim-n/dorgflow).

@@ -14,11 +14,9 @@ if (PHP_SAPI !== 'cli') {
   return;
 }
 
-require_once __DIR__ . '/../autoload.php';
-require_once __DIR__ . '/src/ExtensionDiscovery.php';
-require_once __DIR__ . '/src/Command/PatchCommandBase.php';
-require_once __DIR__ . '/src/Command/PatchCommand.php';
-require_once __DIR__ . '/src/Command/CreatePatchCommand.php';
+/** @var \Composer\Autoload\ClassLoader $loader */
+$loader = require_once __DIR__ . '/../autoload.php';
+$loader->addPsr4('DrupalIssue\\', __DIR__ . '/src');
 
 $application = new Application('drupal-issue', 'FUN.0');
 

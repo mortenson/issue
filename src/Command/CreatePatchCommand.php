@@ -67,7 +67,7 @@ class CreatePatchCommand extends PatchCommandBase {
 
     $io->writeLn("Created $patch");
 
-    $file = $this->choosePatch('What patch do you want to create an interdiff from?', $issue, $io, TRUE);
+    $file = $this->choosePatch('What patch do you want to create an interdiff from?', $issue, $io, 'Do not create interdiff');
     if ($file) {
       $filename = $this->request($file['url'], TRUE, TRUE);
       $comment_number = NULL;

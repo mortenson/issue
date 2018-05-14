@@ -118,22 +118,22 @@ class PatchCommandBase extends Command {
    *   The issue array.
    * @param \Symfony\Component\Console\Style\SymfonyStyle $io
    *   The Symfony input/output decorator.
-   * @param bool $allow_empty
-   *   Whether or not an empty selection should be allowed. Defaults to FALSE.
+   * @param string $empty_message
+   *   An empty message to display to the user, if empty selection is allowed.
    *
    * @return array
    */
-  protected function choosePatch($question, $issue, $io, $allow_empty = FALSE) {
+  protected function choosePatch($question, $issue, $io, $empty_message = NULL) {
     $files = $this->getPatches($issue);
-    if (count($files) === 1 && !$allow_empty) {
+    if (count($files) === 1 && !$empty_message) {
       return reset($files);
     }
     $choices = [];
     foreach ($files as $file) {
       $choices[$file['name']] = $file;
     }
-    if ($allow_empty) {
-      $choices['Do not create interdiff'] = FALSE;
+    if ($empty_message) {
+      $choices[$empty_message] = FALSE;
     }
     $choice = $io->choice($question, array_keys($choices));
     return $choices[$choice];
