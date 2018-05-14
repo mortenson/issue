@@ -2,6 +2,7 @@
 
 namespace DrupalIssue\Command;
 
+use DrupalIssue\ExtensionDiscovery;
 use GuzzleHttp\Client;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -49,9 +50,34 @@ class PatchCommand extends Command {
       return 1;
     }
 
-    if ($issue['field_project']['machine_name'] !== 'drupal') {
-      $io->error('Only Drupal core issues are supported at this time');
+    if (strpos($issue['field_issue_version'], '8') !== 0) {
+      $io->error('Only Drupal 8 projects are supported at this time.');
       return 1;
+    }
+
+    $project_name = $issue['field_project']['machine_name'];
+
+    if ($project_name !== 'drupal') {
+      $project = $this->request($issue['field_project']['uri'] . '.json');
+      $type_map = [
+        'project_distribution' => 'profile',
+        'project_module' => 'module',
+        'project_theme' => 'theme',
+      ];
+      $project_path = $this->getExtensionPath($type_map[$project['type']], $project_name);
+      if (!$project_path) {
+        $minor_verison = preg_replace('/[^-]+\-([^-.]+)\.([^-.]+)\-[^-]+/', '$1', $issue['field_issue_version']);
+        $io->writeln("Installing the development release of {$project['title']}");
+        exec('composer require drupal/' . escapeshellarg($project_name) . ':' . escapeshellarg($minor_verison) . '.x-dev', $output, $return_var);
+        $project_path = $this->getExtensionPath($type_map[$project['type']], $project_name);
+        if ($return_var != 0 || !$project_path) {
+          $io->error('Unable to install project. See output above for details.');
+          return 1;
+        }
+      }
+    }
+    else {
+      $project_path = '.';
     }
 
     $files = [];
@@ -65,7 +91,12 @@ class PatchCommand extends Command {
       }
     }
 
-    $key = $io->choice('What patch would you like to apply?', array_keys($files));
+    if (count($files) > 1) {
+      $key = $io->choice('What patch would you like to apply?', array_keys($files));
+    }
+    else {
+      $key = key($files);
+    }
     $file_url = $files[$key];
 
     $filename = $this->request($file_url, TRUE, TRUE);
@@ -79,13 +110,13 @@ class PatchCommand extends Command {
       $io->writeln("Downloaded $basename");
     }
 
-    exec('git apply ' . escapeshellarg($basename), $output, $return_var);
+    exec('cd ' . escapeshellarg($project_path) . ' && git apply ' . escapeshellarg(getcwd() . '/' . $basename), $output, $return_var);
     if ($return_var != 0) {
       $io->error('Patch failed to apply. See output above for details.');
       return 1;
     }
 
-    $io->writeln("Successfully applied $basename");
+    $io->writeln("Successfully patched $project_name with $basename");
 
     return 0;
   }
@@ -132,6 +163,25 @@ class PatchCommand extends Command {
     }
 
     return $return;
+  }
+
+  /**
+   * Scans the filesystem for extensions of a given type.
+   *
+   * @param string $type
+   *   The extension type to search for. One of 'profile', 'module', 'theme', or
+   *   'theme_engine'.
+   * @param string $name
+   *   The name of the extension.
+   *
+   * @return bool|string
+   *   The path to the extension, or FALSE if it was not found.
+   */
+  protected function getExtensionPath($type, $name) {
+    $discovery = new ExtensionDiscovery(getcwd(), FALSE, [], 'sites/default');
+    $discovery->clearCache();
+    $extensions = $discovery->scan($type, FALSE);
+    return isset($extensions[$name]) ? $extensions[$name]->getPath() : FALSE;
   }
 
 }
