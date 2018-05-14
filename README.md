@@ -9,12 +9,13 @@ git clone https://git.drupal.org/project/drupal.git
 cd drupal
 composer install
 git clone git@github.com:mortenson/issue.git
-php issue/command patch
-# Follow prompts...
-php core/scripts/drupal quick-start
 ```
 
-# Example usage
+# Commands
+
+## patch
+
+Patches a Drupal project based on an issue number.
 
 ```bash
 ~/repos/drupal (8.6.x)$ php issue/command patch
@@ -33,20 +34,20 @@ php core/scripts/drupal quick-start
  > 5
 
 Successfully applied 2962525-combined-21.patch
-~/repos/drupal (8.6.x *)$ php core/scripts/drupal quick-start
+```
 
- Select an installation profile [Install with commonly used features pre-configured.]:
-  [standard  ] Install with commonly used features pre-configured.
-  [minimal   ] Build a custom site without pre-configured functionality. Suitable for advanced users.
-  [demo_umami] Install an example site that shows off some of Drupal's capabilities.
- > standard
+## create-patch
 
-18/18 [▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓]
-Congratulations, you installed Drupal!
-Username: admin
-Password: **********
-Drupal development server started: <http://127.0.0.1:8888>
-This server is not meant for production use.
-One time login url: <http://127.0.0.1:8888/user/reset/1/1526083016/nk4ohwos3-ejhFy3ht6JIWl1CWFKW-RdWn6ydVi670k/login>
-Press Ctrl-C to quit the Drupal development server.
+Creates a patch and interdiff based on an issue number.
+
+```bash
+~/repos/drupal (8.6.x *)$ php issue/command create-patch 2962110
+Created 2962110-44.patch
+
+ What patch do you want to create an interdiff from?:
+  [0] 2962110-42.patch
+  [1] Do not create interdiff
+ > 0
+
+Created interdiff-2962110-42-44.txt
 ```
