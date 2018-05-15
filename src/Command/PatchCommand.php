@@ -10,7 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Downloads and applies a patch starting from a Drupal.org issue number.
  */
-class PatchCommand extends PatchCommandBase {
+class PatchCommand extends CommandBase {
 
   /**
    * {@inheritdoc}
@@ -38,17 +38,12 @@ class PatchCommand extends PatchCommandBase {
 
     if ($project_name !== 'drupal') {
       $project = $this->request($issue['field_project']['uri'] . '.json');
-      $type_map = [
-        'project_distribution' => 'profile',
-        'project_module' => 'module',
-        'project_theme' => 'theme',
-      ];
-      $project_path = $this->getExtensionPath($type_map[$project['type']], $project_name);
+      $project_path = $this->getExtensionPath($project);
       if (!$project_path) {
         $minor_verison = preg_replace('/[^-]+\-([^-.]+)\.([^-.]+)\-[^-]+/', '$1', $issue['field_issue_version']);
         $io->writeln("Installing the development release of {$project['title']}");
-        exec('composer require drupal/' . escapeshellarg($project_name) . ':' . escapeshellarg($minor_verison) . '.x-dev', $output, $return_var);
-        $project_path = $this->getExtensionPath($type_map[$project['type']], $project_name);
+        exec('composer require drupal/' . escapeshellarg($project_name) . ':' . escapeshellarg($minor_verison) . '.x-dev', $return_output, $return_var);
+        $project_path = $this->getExtensionPath($project);
         if ($return_var != 0 || !$project_path) {
           $io->error('Unable to install project. See output above for details.');
           return 1;
@@ -71,13 +66,13 @@ class PatchCommand extends PatchCommandBase {
       $io->writeln("Downloaded $basename");
     }
 
-    exec('cd ' . escapeshellarg($project_path) . ' && git apply ' . escapeshellarg(getcwd() . '/' . $basename), $output, $return_var);
+    exec('cd ' . escapeshellarg($project_path) . ' && git apply ' . escapeshellarg(getcwd() . '/' . $basename), $return_output, $return_var);
     if ($return_var != 0) {
       $io->error('Patch failed to apply. See output above for details.');
       return 1;
     }
 
-    $io->writeLn("Patched $project_name with $basename");
+    $io->success("Patched $project_name with $basename");
 
     return 0;
   }

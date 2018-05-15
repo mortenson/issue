@@ -10,7 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Creates a new patch for a given issue.
  */
-class CreatePatchCommand extends PatchCommandBase {
+class CreatePatchCommand extends CommandBase {
 
   /**
    * {@inheritdoc}
@@ -38,12 +38,7 @@ class CreatePatchCommand extends PatchCommandBase {
 
     if ($project_name !== 'drupal') {
       $project = $this->request($issue['field_project']['uri'] . '.json');
-      $type_map = [
-        'project_distribution' => 'profile',
-        'project_module' => 'module',
-        'project_theme' => 'theme',
-      ];
-      $project_path = $this->getExtensionPath($type_map[$project['type']], $project_name);
+      $project_path = $this->getExtensionPath($project);
       if (!$project_path) {
         $io->error("{$project['title']} is not installed, so you probably don't have local changes.");
       }
@@ -58,14 +53,12 @@ class CreatePatchCommand extends PatchCommandBase {
     $next_comment = count($issue['comments']) + 1;
     $patch = "{$issue['nid']}-$next_comment.patch";
 
-    exec('cd ' . escapeshellarg($project_path) . ' && ' . $add_command . ' && git diff HEAD --binary . > ' . escapeshellarg(getcwd() . "/$patch"), $output, $return_var);
+    exec('cd ' . escapeshellarg($project_path) . ' && ' . $add_command . ' && git diff HEAD --binary . > ' . escapeshellarg(getcwd() . "/$patch"), $return_output, $return_var);
 
     if ($return_var != 0) {
       $io->error('Failed to create patch. See output above for details.');
       return 1;
     }
-
-    $io->writeLn("Created $patch");
 
     $file = $this->choosePatch('What patch do you want to create an interdiff from?', $issue, $io, 'Do not create interdiff');
     if ($file) {
@@ -78,14 +71,17 @@ class CreatePatchCommand extends PatchCommandBase {
         }
       }
       $interdiff = "interdiff-{$issue['nid']}-$comment_number-$next_comment.txt";
-      exec("interdiff $filename $patch > $interdiff", $output, $return_var);
+      exec("interdiff $filename $patch > $interdiff", $return_output, $return_var);
 
       if ($return_var != 0) {
         $io->error('Failed to create interdiff. See output above for details.');
         return 1;
       }
 
-      $io->writeLn("Created $interdiff");
+      $io->success("Created $patch and $interdiff");
+    }
+    else {
+      $io->success("Created $patch");
     }
 
     return 0;

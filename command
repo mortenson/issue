@@ -9,6 +9,8 @@
 use Symfony\Component\Console\Application;
 use DrupalIssue\Command\PatchCommand;
 use DrupalIssue\Command\CreatePatchCommand;
+use DrupalIssue\Command\ReviewCommand;
+use DrupalIssue\Command\TestCommand;
 
 if (PHP_SAPI !== 'cli') {
   return;
@@ -22,5 +24,7 @@ $application = new Application('drupal-issue', 'FUN.0');
 
 $application->add(new PatchCommand());
 $application->add(new CreatePatchCommand());
+$application->add(new ReviewCommand());
+$application->add(new TestCommand());
 
 $application->run();

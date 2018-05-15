@@ -7,9 +7,9 @@ use GuzzleHttp\Client;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Base class containing utility methods for patch commands.
+ * Base class containing utility methods for commands.
  */
-class PatchCommandBase extends Command {
+class CommandBase extends Command {
 
   /**
    * Gets data from a given URL, and caches locally.
@@ -58,20 +58,35 @@ class PatchCommandBase extends Command {
   /**
    * Scans the filesystem for extensions of a given type.
    *
-   * @param string $type
-   *   The extension type to search for. One of 'profile', 'module', 'theme', or
-   *   'theme_engine'.
-   * @param string $name
-   *   The name of the extension.
+   * @param string|array $project
+   *   The project array, or the name of the project.
    *
    * @return bool|string
    *   The path to the extension, or FALSE if it was not found.
    */
-  protected function getExtensionPath($type, $name) {
-    $discovery = new ExtensionDiscovery(getcwd(), FALSE, [], 'sites/default');
-    $discovery->clearCache();
-    $extensions = $discovery->scan($type, FALSE);
-    return isset($extensions[$name]) ? $extensions[$name]->getPath() : FALSE;
+  protected function getExtensionPath($project) {
+    if (is_array($project)) {
+      $type_map = [
+        'project_distribution' => 'profile',
+        'project_module' => 'module',
+        'project_theme' => 'theme',
+      ];
+      $name = $project['field_project_machine_name'];
+      $types = [$type_map[$project['type']]];
+    }
+    else {
+      $name = $project;
+      $types = ['module', 'theme', 'profile'];
+    }
+    foreach ($types as $type) {
+      $discovery = new ExtensionDiscovery(getcwd(), FALSE, [], 'sites/default');
+      $discovery->clearCache();
+      $extensions = $discovery->scan($type, FALSE);
+      if (isset($extensions[$name])) {
+        return $extensions[$name]->getPath();
+      }
+    }
+    return FALSE;
   }
 
   /**

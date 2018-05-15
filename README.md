@@ -62,6 +62,47 @@ Created 2962110-44.patch
 Created interdiff-2962110-42-44.txt
 ```
 
+## review
+
+Performs automated review based on a project.
+
+It's expected that you either have local changes of your own to review, or have
+already applied a patch from an issue for review.
+
+```bash
+~/repos/drupal (8.6.x *)$ php issue/command review drupal
+Starting auto review for drupal
+Running PHP Code Sniffer
+
+ [OK] No code standard violations found.
+
+ [ERROR] Code changes have been made, but no tests were changed or added.
+```
+
+## test
+
+Performs tests based on changed files in a project.
+
+```bash
+~/repos/drupal (8.6.x *+)$ php -S 127.0.0.1:12345 > /dev/null 2>&1 &
+[1] 41032
+~/repos/drupal (8.6.x *+)$ php issue/command test drupal --url=http://127.0.0.1:12345
+
+ What test would you like to run?:
+  [0] core/modules/big_pipe/tests/src/Functional/BigPipeTest.php
+  [1] core/modules/big_pipe/tests/src/FunctionalJavascript/BigPipeRegressionTest.php
+ > 0
+
+PHPUnit 6.5.8 by Sebastian Bergmann and contributors.
+
+Testing Drupal\Tests\big_pipe\Functional\BigPipeTest
+....                                                                4 / 4 (100%)
+
+Time: 21.8 seconds, Memory: 4.00MB
+
+OK (4 tests, 177 assertions)
+```
+
 # Alternatives
 
 If you prefer tracking changes with Git instead of using patch files, you
