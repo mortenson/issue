@@ -68,7 +68,7 @@ Created interdiff-2962110-42-44.txt
 Performs tests based on changed files in a project.
 
 ```bash
-~/repos/drupal (8.6.x *+)$ php -S 127.0.0.1:12345 > /dev/null 2>&1 &
+~/repos/drupal (8.6.x *+)$ php -S 127.0.0.1:12345 .ht.router.php > /dev/null 2>&1 &
 [1] 41032
 ~/repos/drupal (8.6.x *+)$ php issue/command test drupal --url=http://127.0.0.1:12345
 
