@@ -7,7 +7,8 @@ Contains commands useful for contributing to core issues.
 1. Unix environment
 1. [git](https://git-scm.com/downloads)
 1. [composer](https://getcomposer.org/)
-1. [interdiff](http://freshmeat.sourceforge.net/projects/patchutils)
+1. create-patch only: [interdiff](http://freshmeat.sourceforge.net/projects/patchutils)
+1. test only: [phantomjs](http://phantomjs.org/download.html)
 1. A Drupal codebase checked out with Git
 
 # Installation
