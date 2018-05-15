@@ -20,7 +20,7 @@ class TestCommand extends CommandBase {
     $this->setName('test')
       ->setDescription('Tests changes in the context of a given project.')
       ->addArgument('project', InputArgument::OPTIONAL, 'A project name.')
-      ->addOption('url', NULL, InputOption::VALUE_OPTIONAL, 'The URL of your Drupal site.');
+      ->addOption('url', NULL, InputOption::VALUE_REQUIRED, 'The URL of your Drupal site.');
 
     parent::configure();
   }
@@ -66,7 +66,7 @@ class TestCommand extends CommandBase {
 
     if (strpos($test, 'tests/src/FunctionalJavascript') !== FALSE) {
       passthru('phantomjs --ssl-protocol=any --ignore-ssl-errors=true vendor/jcalderonzumba/gastonjs/src/Client/main.js 8510 1024 768 > /dev/null 2>&1 &', $return_var);
-      if (!$return_var) {
+      if ($return_var != 0) {
         $io->error('Error running the "phantomjs" command. Is PhantomJS installed?');
         return 1;
       }
