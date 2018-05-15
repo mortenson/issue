@@ -62,23 +62,6 @@ Created 2962110-44.patch
 Created interdiff-2962110-42-44.txt
 ```
 
-## review
-
-Performs automated review based on a project.
-
-It's expected that you either have local changes of your own to review, or have
-already applied a patch from an issue for review.
-
-```bash
-~/repos/drupal (8.6.x *)$ php issue/command review drupal
-Starting auto review for drupal
-Running PHP Code Sniffer
-
- [OK] No code standard violations found.
-
- [ERROR] Code changes have been made, but no tests were changed or added.
-```
-
 ## test
 
 Performs tests based on changed files in a project.
