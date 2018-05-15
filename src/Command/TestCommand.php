@@ -36,9 +36,12 @@ class TestCommand extends CommandBase {
       $project_name = $io->ask('What project are you working on?');
     }
 
-    $prefix = '';
     if (!empty($input->getOption('url'))) {
-      $prefix = 'SIMPLETEST_BASE_URL=' . escapeshellarg($input->getOption('url')) . ' ';
+      putenv('SIMPLETEST_BASE_URL=' . $input->getOption('url'));
+    }
+    else if (!getenv('SIMPLETEST_BASE_URL')) {
+      $io->error('You must provide a SIMPLETEST_BASE_URL environment variable or use the "--url" option to run tests.');
+      return 1;
     }
 
     if ($project_name !== 'drupal') {
@@ -60,6 +63,7 @@ class TestCommand extends CommandBase {
 
     if (empty($tests)) {
       $io->writeln('You have not changed or added any tests.');
+      return 0;
     }
 
     $test = count($tests) === 1 ? reset($tests) : $io->choice('What test would you like to run?', $tests);
@@ -70,14 +74,14 @@ class TestCommand extends CommandBase {
         $io->error('Error running the "phantomjs" command. Is PhantomJS installed?');
         return 1;
       }
-      passthru($prefix . './vendor/bin/phpunit -c core ' . escapeshellarg($test));
+      passthru('./vendor/bin/phpunit -c core ' . escapeshellarg($test));
       passthru('pkill phantomjs');
     }
     else if (strpos($test, 'tests/src') !== FALSE) {
-      passthru($prefix . './vendor/bin/phpunit -c core ' . escapeshellarg($test));
+      passthru('./vendor/bin/phpunit -c core ' . escapeshellarg($test));
     }
     else if (strpos($test, 'src/Tests') !== FALSE) {
-      passthru($prefix . 'php ./core/scripts/run-tests.sh --file ' . escapeshellarg($test));
+      passthru('php ./core/scripts/run-tests.sh --file ' . escapeshellarg($test));
     }
     else {
       $io->error('Cannot determine what kind of test this is.');
