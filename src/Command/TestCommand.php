@@ -43,6 +43,9 @@ class TestCommand extends CommandBase {
       $io->error('You must provide a SIMPLETEST_BASE_URL environment variable or use the "--url" option to run tests.');
       return 1;
     }
+    if (!getenv('DRUPAL_TEST_BASE_URL')) {
+      putenv('DRUPAL_TEST_BASE_URL=' . getenv('SIMPLETEST_BASE_URL'));
+    }
 
     if ($project_name !== 'drupal') {
       $project_path = $this->getExtensionPath($project_name);
@@ -59,7 +62,7 @@ class TestCommand extends CommandBase {
     }
 
     exec('cd ' . escapeshellarg($project_path) . ' && ' . $add_command . ' && git diff --cached --name-only', $return_output, $return_var);
-    $tests = preg_grep('/(tests\/src|src\/Tests)/i', $return_output);
+    $tests = array_values(preg_grep('/(tests\/src|src\/Tests|Nightwatch).*\.(php|js)/i', $return_output));
 
     if (empty($tests)) {
       $io->writeln('You have not changed or added any tests.');
@@ -76,6 +79,9 @@ class TestCommand extends CommandBase {
       }
       passthru('./vendor/bin/phpunit -c core ' . escapeshellarg($test));
       passthru('pkill phantomjs');
+    }
+    else if (strpos($test, 'Nightwatch') !== FALSE) {
+      passthru('cd core && yarn install && yarn test:nightwatch ../' . escapeshellarg($test));
     }
     else if (strpos($test, 'tests/src') !== FALSE) {
       passthru('./vendor/bin/phpunit -c core ' . escapeshellarg($test));
