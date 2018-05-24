@@ -30,11 +30,18 @@ class TestCommand extends CommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $io = new SymfonyStyle($input, $output);
+    $default_cache = $this->getCacheDirectory() . '/last_project';
 
     $project_name = $input->getArgument('project');
     if (!$project_name) {
-      $project_name = $io->ask('What project are you working on?');
+      $default = 'drupal';
+      if (file_exists($default_cache)) {
+        $default = file_get_contents($default_cache);
+      }
+      $project_name = $io->ask('What project are you working on?', $default);
     }
+
+    file_put_contents($default_cache, $project_name);
 
     if (!empty($input->getOption('url'))) {
       putenv('SIMPLETEST_BASE_URL=' . $input->getOption('url'));
