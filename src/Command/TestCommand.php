@@ -62,7 +62,7 @@ class TestCommand extends CommandBase {
     }
 
     exec('cd ' . escapeshellarg($project_path) . ' && ' . $add_command . ' && git diff --cached --name-only', $return_output, $return_var);
-    $tests = array_values(preg_grep('/(tests\/src|src\/Tests|Nightwatch).*\.(php|js)/i', $return_output));
+    $tests = array_values(preg_grep('/(tests\/src|src\/Tests|Nightwatch)(?!\/Commands).*\.(php|js)/i', $return_output));
 
     if (empty($tests)) {
       $io->writeln('You have not changed or added any tests.');
