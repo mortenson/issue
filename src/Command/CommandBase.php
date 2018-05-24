@@ -26,7 +26,7 @@ class CommandBase extends Command {
   protected function request($url, $cache = TRUE, $return_cache_filename = FALSE) {
     $client = new Client();
 
-    $cache_dir = __DIR__ . '/../../.cache/';
+    $cache_dir = $this->getCacheDirectory();
     if (!is_dir($cache_dir)) mkdir($cache_dir);
 
     $cache_filename = $cache_dir . md5($url);
@@ -101,8 +101,14 @@ class CommandBase extends Command {
    */
   protected function getIssue($input, $io) {
     $issue_number = $input->getArgument('issue-number');
+    $default_cache = $this->getCacheDirectory() . '/last_issue';
+
     if (!$issue_number) {
-      $issue_number = $io->ask('What issue are you working on?');
+      $default = NULL;
+      if (file_exists($default_cache)) {
+        $default = file_get_contents($default_cache);
+      }
+      $issue_number = $io->ask('What issue are you working on?', $default);
     }
 
     if (!is_numeric($issue_number)) {
@@ -121,6 +127,9 @@ class CommandBase extends Command {
       $io->error('Only Drupal 8 projects are supported at this time.');
       return FALSE;
     }
+
+    file_put_contents($default_cache, $issue_number);
+
     return $issue;
   }
 
@@ -136,11 +145,15 @@ class CommandBase extends Command {
    * @param string $empty_message
    *   An empty message to display to the user, if empty selection is allowed.
    *
-   * @return array
+   * @return string|boolean
+   *   The selection, or FALSE if there are no patches to choose from.
    */
   protected function choosePatch($question, $issue, $io, $empty_message = NULL) {
     $files = $this->getPatches($issue);
-    if (count($files) === 1 && !$empty_message) {
+    if (empty($files)) {
+      return FALSE;
+    }
+    else if (count($files) === 1 && !$empty_message) {
       return reset($files);
     }
     $choices = [];
@@ -174,6 +187,16 @@ class CommandBase extends Command {
       }
     }
     return $files;
+  }
+
+  /**
+   * Gets the cache directory for this command.
+   *
+   * @return string
+   *   The cache directory
+   */
+  protected function getCacheDirectory() {
+    return __DIR__ . '/../../.cache/';
   }
 
 }
