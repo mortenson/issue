@@ -78,6 +78,8 @@ class TestCommand extends CommandBase {
 
     $test = count($tests) === 1 ? reset($tests) : $io->choice('What test would you like to run?', $tests);
 
+    $test = "$project_path/$test";
+
     if (strpos($test, 'tests/src/FunctionalJavascript') !== FALSE) {
       passthru('phantomjs --ssl-protocol=any --ignore-ssl-errors=true vendor/jcalderonzumba/gastonjs/src/Client/main.js 8510 1024 768 > /dev/null 2>&1 &', $return_var);
       if ($return_var != 0) {
