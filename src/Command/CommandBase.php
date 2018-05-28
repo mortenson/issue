@@ -181,8 +181,10 @@ class CommandBase extends Command {
       if ($fileinfo['display']) {
         $file = $this->request("{$fileinfo['file']['uri']}.json");
         if (pathinfo($file['url'], PATHINFO_EXTENSION) === 'patch') {
-          $file['cid'] = $fileinfo['file']['cid'];
-          $files[] = $file;
+          if (!empty($fileinfo['file']['cid'])) {
+            $file['cid'] = $fileinfo['file']['cid'];
+            $files[] = $file;
+          }
         }
       }
     }
