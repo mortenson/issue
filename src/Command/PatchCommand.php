@@ -55,6 +55,11 @@ class PatchCommand extends CommandBase {
     }
 
     $file = $this->choosePatch('What patch would you like to apply?', $issue, $io);
+    if (empty($file)) {
+      $io->success('This issue has no patches yet - you should make one!');
+      return 0;
+    }
+
     $filename = $this->request($file['url'], TRUE, TRUE);
     $basename = basename($file['url']);
 
