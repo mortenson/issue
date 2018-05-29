@@ -53,6 +53,9 @@ class TestCommand extends CommandBase {
     if (!getenv('DRUPAL_TEST_BASE_URL')) {
       putenv('DRUPAL_TEST_BASE_URL=' . getenv('SIMPLETEST_BASE_URL'));
     }
+    if (!getenv('SIMPLETEST_DB')) {
+      putenv('SIMPLETEST_DB=sqlite://localhost/sites/default/files/.simpletest.sqlite');
+    }
 
     if ($project_name !== 'drupal') {
       $project_path = $this->getExtensionPath($project_name);
