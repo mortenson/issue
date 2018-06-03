@@ -199,7 +199,7 @@ class CommandBase extends Command {
    */
   protected function getCacheDirectory() {
     $directory = __DIR__ . '/../../.cache/';
-    mkdir($directory, 0777, true);
+    if (!is_dir($directory)) mkdir($directory, 0777, true);
     return $directory;
   }
 
