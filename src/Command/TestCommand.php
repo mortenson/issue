@@ -72,7 +72,7 @@ class TestCommand extends CommandBase {
     }
 
     exec('cd ' . escapeshellarg($project_path) . ' && ' . $add_command . ' && git diff --cached --name-only', $return_output, $return_var);
-    $tests = array_values(preg_grep('/(tests\/src|src\/Tests|Nightwatch)(?!\/Commands).*\.(php|js)/i', $return_output));
+    $tests = array_values(preg_grep('/(tests\/src|src\/Tests|Nightwatch|core\/tests)(?!\/Commands).*\.(php|js)/i', $return_output));
 
     if (empty($tests)) {
       $io->writeln('You have not changed or added any tests.');
@@ -95,7 +95,7 @@ class TestCommand extends CommandBase {
     else if (strpos($test, 'Nightwatch') !== FALSE) {
       passthru('cd core && yarn install && yarn test:nightwatch ../' . escapeshellarg($test));
     }
-    else if (strpos($test, 'tests/src') !== FALSE) {
+    else if (strpos($test, 'tests/src') !== FALSE || strpos($test, 'core/tests/Drupal/Tests') !== FALSE) {
       passthru('./vendor/bin/phpunit -c core ' . escapeshellarg($test));
     }
     else if (strpos($test, 'src/Tests') !== FALSE) {
