@@ -170,6 +170,8 @@ class CommandBase extends Command {
   /**
    * Gets displayed patches for a given issue.
    *
+   * Patches are sorted from newest to oldest.
+   *
    * @param array $issue
    *   An issue array.
    * @return array
@@ -188,6 +190,11 @@ class CommandBase extends Command {
         }
       }
     }
+
+    usort($files, function ($a, $b) {
+      return $a['cid'] < $b['cid'];
+    });
+
     return $files;
   }
 
