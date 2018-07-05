@@ -84,6 +84,9 @@ class TestCommand extends CommandBase {
     $test = "$project_path/$test";
 
     if (strpos($test, 'tests/src/FunctionalJavascript') !== FALSE) {
+      passthru('pkill phantomjs');
+      passthru('pkill chromedriver');
+      passthru('chromedriver --port=4444 > /dev/null 2>&1 &');
       passthru('phantomjs --ssl-protocol=any --ignore-ssl-errors=true vendor/jcalderonzumba/gastonjs/src/Client/main.js 8510 1024 768 > /dev/null 2>&1 &', $return_var);
       if ($return_var != 0) {
         $io->error('Error running the "phantomjs" command. Is PhantomJS installed?');
@@ -91,6 +94,7 @@ class TestCommand extends CommandBase {
       }
       passthru('./vendor/bin/phpunit -c core ' . escapeshellarg($test));
       passthru('pkill phantomjs');
+      passthru('pkill chromedriver');
     }
     else if (strpos($test, 'Nightwatch') !== FALSE) {
       passthru('cd core && yarn install && yarn test:nightwatch ../' . escapeshellarg($test));
