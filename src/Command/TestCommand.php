@@ -20,7 +20,8 @@ class TestCommand extends CommandBase {
     $this->setName('test')
       ->setDescription('Tests changes in the context of a given project.')
       ->addArgument('project', InputArgument::OPTIONAL, 'A project name.')
-      ->addOption('url', NULL, InputOption::VALUE_REQUIRED, 'The URL of your Drupal site.');
+      ->addOption('url', NULL, InputOption::VALUE_REQUIRED, 'The URL of your Drupal site.')
+      ->addOption('filter', NULL, InputOption::VALUE_OPTIONAL, 'A filter to pass to PHP Unit.');
 
     parent::configure();
   }
@@ -83,6 +84,11 @@ class TestCommand extends CommandBase {
 
     $test = "$project_path/$test";
 
+    $suffix = '';
+    if ($filter = $input->getOption('filter')) {
+      $suffix .= ' --filter=' . escapeshellarg($filter);
+    }
+
     if (strpos($test, 'tests/src/FunctionalJavascript') !== FALSE) {
       passthru('pkill phantomjs');
       passthru('pkill chromedriver');
@@ -92,21 +98,21 @@ class TestCommand extends CommandBase {
         $io->error('Error running the "phantomjs" command. Is PhantomJS installed?');
         return 1;
       }
-      passthru('./vendor/bin/phpunit -c core ' . escapeshellarg($test));
+      passthru('./vendor/bin/phpunit -c core ' . escapeshellarg($test) . $suffix);
       passthru('pkill phantomjs');
       passthru('pkill chromedriver');
     }
     else if (strpos($test, 'Nightwatch') !== FALSE) {
       passthru('cd core && yarn install && yarn test:nightwatch ../' . escapeshellarg($test));
     }
-    else if (strpos($test, 'tests/src') !== FALSE || strpos($test, 'core/tests/Drupal/Tests') !== FALSE) {
-      passthru('./vendor/bin/phpunit -c core ' . escapeshellarg($test));
+    else if (strpos($test, 'tests/src') !== FALSE || strpos($test, 'core/tests/Drupal/Tests') !== FALSE || strpos($test, 'core/tests/Drupal/KernelTests') !== FALSE) {
+      passthru('./vendor/bin/phpunit -c core ' . escapeshellarg($test) . $suffix);
     }
     else if (strpos($test, 'src/Tests') !== FALSE) {
       passthru('php ./core/scripts/run-tests.sh --file ' . escapeshellarg($test));
     }
     else {
-      $io->error('Cannot determine what kind of test this is.');
+      $io->error("Cannot determine what kind of test \"$test\" is.");
       return 1;
     }
 

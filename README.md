@@ -87,6 +87,9 @@ Time: 21.8 seconds, Memory: 4.00MB
 OK (4 tests, 177 assertions)
 ```
 
+For PHPUnit tests, you can pass the `--filter` option to filter what test
+methods or datasets are run.
+
 # Alternatives
 
 If you prefer tracking changes with Git instead of using patch files, you
